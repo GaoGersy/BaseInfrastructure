@@ -36,7 +36,7 @@ public class HttpHandler {
     public static String BASE_URL;
     private String header;
     private String paramJson;
-    private BaseParamBean mBaseParamBean;
+    private BaseParamBean baseParamBean;
     private Map<String, Object> paramMap;
     private String url;
     private String errorMsg;
@@ -60,6 +60,17 @@ public class HttpHandler {
             throw new IllegalStateException("BASE_URL 格式不正确哦...");
         }
         BASE_URL = baseUrl;
+    }
+
+    public BaseParamBean getBaseParamBean() {
+        return baseParamBean;
+    }
+
+    public void setParamMap(String key,Object value) {
+        if (paramMap==null){
+            throw new IllegalStateException("paramMap为空，你不能为它传参数");
+        }
+        paramMap.put(key,value);
     }
 
     public void showLoading() {
@@ -108,8 +119,8 @@ public class HttpHandler {
     private void postJson(boolean isBeanCallback) {
         if (paramMap != null) {
             postJson(paramMap, isBeanCallback);
-        } else if (this.mBaseParamBean != null) {
-            postJson(this.mBaseParamBean, isBeanCallback);
+        } else if (this.baseParamBean != null) {
+            postJson(this.baseParamBean, isBeanCallback);
         } else {
             postJson(paramJson, isBeanCallback);
         }
@@ -170,7 +181,7 @@ public class HttpHandler {
     public static class Builder {
         private String header = "header";
         private String paramJson = "";
-        private BaseParamBean mBaseParamBean;
+        private BaseParamBean baseParamBean;
         private Map<String, Object> paramMap;
         private String url;
         private String errorMsg = "数据请求出错...";
@@ -195,6 +206,16 @@ public class HttpHandler {
 
         public Builder setParamJson(String paramJson) {
             this.paramJson = paramJson;
+            return this;
+        }
+
+        public Builder setBaseParamBean(BaseParamBean baseParamBean) {
+            this.baseParamBean = baseParamBean;
+            return this;
+        }
+
+        public Builder setParamMap(Map<String, Object> paramMap) {
+            this.paramMap = paramMap;
             return this;
         }
 
@@ -268,7 +289,7 @@ public class HttpHandler {
             httpHandler.context = this.context;
             httpHandler.header = this.header;
             httpHandler.paramJson = this.paramJson;
-            httpHandler.mBaseParamBean = this.mBaseParamBean;
+            httpHandler.baseParamBean = this.baseParamBean;
             httpHandler.paramMap = this.paramMap;
             httpHandler.errorMsg = this.errorMsg;
             httpHandler.loadingMsg = this.loadingMsg;
