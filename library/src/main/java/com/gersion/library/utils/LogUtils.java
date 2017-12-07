@@ -10,9 +10,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/**
- * Created by Administrator on 2017/1/5.
- */
 public class LogUtils {
     public static void d(Object object) {
         if (object == null) {

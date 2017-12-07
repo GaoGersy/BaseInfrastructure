@@ -22,7 +22,7 @@ import java.util.Map;
 /***
  * Gson 工具类
  */
-public final class GsonQuick {
+public final class GsonHelper {
 
     /**
      * Json 解析器

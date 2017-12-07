@@ -1,11 +1,11 @@
 package com.gersion.baseinfrastructure;
 
 import com.gersion.baseinfrastructure.bean.CategoryResultBean;
-import com.gersion.library.api.HttpHandler;
-import com.gersion.library.base.BaseRxDetailActivity;
+import com.gersion.library.base.BaseDetailActivity;
+import com.gersion.library.http.HttpHandler;
 import com.gersion.library.utils.LogUtils;
 
-public class MainActivity extends BaseRxDetailActivity implements HttpHandler.ResultCallBack<CategoryResultBean> {
+public class MainActivity extends BaseDetailActivity implements HttpHandler.ResultCallBack<CategoryResultBean> {
 
     @Override
     protected int getContentId() {
@@ -22,8 +22,9 @@ public class MainActivity extends BaseRxDetailActivity implements HttpHandler.Re
     }
 
     @Override
-    public void handleSucess(CategoryResultBean response) {
-        setTitle(response.getData().getList().get(0).getTitle());
+    public void handleSucess(CategoryResultBean result) {
+        setTitle(result.getData().getList().get(0).getTitle());
+        LogUtils.d(result);
     }
 
     @Override

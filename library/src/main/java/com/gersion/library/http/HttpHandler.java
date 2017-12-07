@@ -13,43 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gersion.library.api;
+package com.gersion.library.http;
 
 import android.app.Dialog;
 import android.content.Context;
 
-import com.gersion.library.bean.ParamBean;
-import com.gersion.library.convert.CallBack;
-import com.gersion.library.utils.GsonQuick;
-import com.gersion.library.utils.LoadingDialog;
-import com.gersion.library.utils.LogUtils;
+import com.gersion.library.bean.BaseParamBean;
+import com.gersion.library.callback.CallBack;
+import com.gersion.library.dialog.LoadingDialog;
+import com.gersion.library.utils.GsonHelper;
 import com.gersion.library.utils.ToastUtils;
-import com.lzy.okgo.model.HttpMethod;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.Map;
 
-import io.reactivex.disposables.Disposable;
 import okhttp3.Call;
 import okhttp3.MediaType;
 
 public class HttpHandler {
+    public static final int POST = 1;
+    public static final int GET = 2;
+    public static String BASE_URL;
     private String header;
     private String paramJson;
-    private ParamBean paramBean;
+    private BaseParamBean mBaseParamBean;
     private Map<String, Object> paramMap;
     private String url;
     private String errorMsg;
     private String loadingMsg;
     private Dialog dialog;
     private Context context;
-    private HttpMethod httpMethod;
+    private int httpMethod;
     private ResultCallBack mResultCallBack;
     private Class clazz;
     private Object tag;
 
     private HttpHandler(ResultCallBack resultCallBack) {
         mResultCallBack = resultCallBack;
+    }
+
+    public static void initBaseUrl(String baseUrl){
+        if (BASE_URL==null){
+            throw new NullPointerException("BASE_URL 不能为空哦...");
+        }
+        if (!BASE_URL.startsWith("http")){
+            throw new IllegalStateException("BASE_URL 格式不正确哦...");
+        }
+        BASE_URL = baseUrl;
     }
 
     public void showLoading() {
@@ -69,7 +79,7 @@ public class HttpHandler {
     }
 
     public <T> void getString() {
-        if (httpMethod == HttpMethod.GET) {
+        if (httpMethod == GET) {
             getJson(false);
         } else {
             postJson(false);
@@ -77,7 +87,7 @@ public class HttpHandler {
     }
 
     public <T> void getBeanData() {
-        if (httpMethod == HttpMethod.GET) {
+        if (httpMethod == GET) {
             getJson(true);
         } else {
             postJson(true);
@@ -97,25 +107,25 @@ public class HttpHandler {
 
     private void postJson(boolean isBeanCallback) {
         if (paramMap != null) {
-            postJson(paramMap,isBeanCallback);
-        } else if (this.paramBean != null) {
-            postJson(this.paramBean,isBeanCallback);
+            postJson(paramMap, isBeanCallback);
+        } else if (this.mBaseParamBean != null) {
+            postJson(this.mBaseParamBean, isBeanCallback);
         } else {
-            postJson(paramJson,isBeanCallback);
+            postJson(paramJson, isBeanCallback);
         }
     }
 
-    private void postJson(ParamBean paramBean, boolean isBeanCallback) {
-        String paramJson = GsonQuick.toJsonFromBean(paramBean);
-        postJson(paramJson,isBeanCallback);
+    private void postJson(BaseParamBean baseParamBean, boolean isBeanCallback) {
+        String paramJson = GsonHelper.toJsonFromBean(baseParamBean);
+        postJson(paramJson, isBeanCallback);
     }
 
-    private void postJson(Map<String, Object> paramMap,boolean isBeanCallback) {
-        String paramJson = GsonQuick.toJsonFromMap(paramMap);
-        postJson(paramJson,isBeanCallback);
+    private void postJson(Map<String, Object> paramMap, boolean isBeanCallback) {
+        String paramJson = GsonHelper.toJsonFromMap(paramMap);
+        postJson(paramJson, isBeanCallback);
     }
 
-    private void postJson(String paramJson,boolean isBeanCallback) {
+    private void postJson(String paramJson, boolean isBeanCallback) {
         mCallBack.setBeanCallback(isBeanCallback);
         showLoading();
         OkHttpUtils
@@ -138,10 +148,9 @@ public class HttpHandler {
 
         @Override
         public void onResponse(String response, int id) {
-            LogUtils.e(response);
             if (isBeanCallback()) {
-                mResultCallBack.handleSucess(GsonQuick.fromJsontoBean(response, clazz));
-            }else {
+                mResultCallBack.handleSucess(GsonHelper.fromJsontoBean(response, clazz));
+            } else {
                 mResultCallBack.handleSucess(response);
             }
             dismissLoading();
@@ -156,21 +165,19 @@ public class HttpHandler {
         void handleSucess(T result);
 
         void handleError(Throwable e);
-
-        void addDisposable(Disposable d);
     }
 
     public static class Builder {
         private String header = "header";
         private String paramJson = "";
-        private ParamBean paramBean;
+        private BaseParamBean mBaseParamBean;
         private Map<String, Object> paramMap;
         private String url;
         private String errorMsg = "数据请求出错...";
         private String loadingMsg = "正在奋力的加载中...";
         private Dialog dialog;
         private Context context;
-        private HttpMethod httpMethod = HttpMethod.GET;
+        private int httpMethod = GET;
         private ResultCallBack resultCallBack;
         private Class clazz;
         private Object tag;
@@ -216,7 +223,7 @@ public class HttpHandler {
             return this;
         }
 
-        public Builder setHttpMethod(HttpMethod httpMethod) {
+        public Builder setHttpMethod(int httpMethod) {
             this.httpMethod = httpMethod;
             return this;
         }
@@ -236,9 +243,10 @@ public class HttpHandler {
             return this;
         }
 
-//        public Builder withBaseUrl(String url){
-//            this.url =
-//        }
+        public Builder withBaseUrl(String url) {
+            this.url = BASE_URL + url;
+            return this;
+        }
 
         public HttpHandler build() {
             if (resultCallBack == null) {
@@ -260,7 +268,7 @@ public class HttpHandler {
             httpHandler.context = this.context;
             httpHandler.header = this.header;
             httpHandler.paramJson = this.paramJson;
-            httpHandler.paramBean = this.paramBean;
+            httpHandler.mBaseParamBean = this.mBaseParamBean;
             httpHandler.paramMap = this.paramMap;
             httpHandler.errorMsg = this.errorMsg;
             httpHandler.loadingMsg = this.loadingMsg;

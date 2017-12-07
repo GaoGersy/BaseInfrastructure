@@ -1,4 +1,4 @@
-package com.gersion.library.utils;
+package com.gersion.library.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
