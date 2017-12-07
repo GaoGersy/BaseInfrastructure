@@ -14,12 +14,9 @@ public class MainActivity extends BaseRxDetailActivity implements HttpHandler.Re
 
     @Override
     protected void initData() {
-        HttpHandler httpHandler = new HttpHandler.Builder()
-                .setContext(this)
+        HttpHandler httpHandler = new HttpHandler.Builder(this,this,CategoryResultBean.class)
                 .setUrl("http://120.79.49.134:8080/image/getCategoryListByGirlType")
                 .setResultCallBack(this)
-                .setClazz(CategoryResultBean.class)
-                .setTag(this)
                 .build();
         httpHandler.getBeanData();
     }

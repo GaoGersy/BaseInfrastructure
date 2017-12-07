@@ -17,15 +17,11 @@ package com.gersion.library.api;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import com.gersion.library.R;
 import com.gersion.library.bean.ParamBean;
 import com.gersion.library.convert.CallBack;
 import com.gersion.library.utils.GsonQuick;
+import com.gersion.library.utils.LoadingDialog;
 import com.gersion.library.utils.LogUtils;
 import com.gersion.library.utils.ToastUtils;
 import com.lzy.okgo.model.HttpMethod;
@@ -62,18 +58,7 @@ public class HttpHandler {
                 dialog.show();
             }
         } else {
-            LayoutInflater inflater = LayoutInflater.from(context);
-            View view = inflater.inflate(R.layout.dialog_loading, null);// 得到加载view
-            TextView tvMsg = view.findViewById(R.id.tv_msg);
-            tvMsg.setText(loadingMsg);
-            dialog = new Dialog(context, R.style.loading_dialog);
-
-            dialog.setCanceledOnTouchOutside(false);
-            dialog.setCancelable(true);// 不可以用“返回键”取消
-            dialog.setContentView(view, new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT));// 设置布局
-            dialog.show();
+            dialog = LoadingDialog.getDialog(context, loadingMsg);
         }
     }
 
@@ -87,7 +72,7 @@ public class HttpHandler {
         if (httpMethod == HttpMethod.GET) {
             getJson(false);
         } else {
-            postJson(paramBean, false);
+            postJson(false);
         }
     }
 
@@ -95,7 +80,7 @@ public class HttpHandler {
         if (httpMethod == HttpMethod.GET) {
             getJson(true);
         } else {
-            postJson(paramBean, true);
+            postJson(true);
         }
     }
 
@@ -190,6 +175,12 @@ public class HttpHandler {
         private Class clazz;
         private Object tag;
 
+        public Builder(Context context, Object tag, Class beanClass) {
+            this.context = context;
+            this.clazz = beanClass;
+            this.tag = tag;
+        }
+
         public Builder setHeader(String header) {
             this.header = header;
             return this;
@@ -244,6 +235,10 @@ public class HttpHandler {
             this.tag = tag;
             return this;
         }
+
+//        public Builder withBaseUrl(String url){
+//            this.url =
+//        }
 
         public HttpHandler build() {
             if (resultCallBack == null) {
